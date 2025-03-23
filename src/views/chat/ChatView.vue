@@ -406,7 +406,7 @@ onUnmounted(() => {
                 <!-- {{ item.content }} -->
               </div>
               <div
-                v-if="item.role !== 'user' && item.role !== 'system'"
+                v-else
                 v-html="
                   renderMarkdown(
                     (item.content as string) === '' ? '回复失败,请再试一次' : '' + item.content,

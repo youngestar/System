@@ -65,7 +65,7 @@ const labelSetting = {
   offset: [10, 0],
   fontSize: 16,
   textStyle: {
-    color: '#9fe9f0', // 字体颜色设置
+    color: '#475567', // 字体颜色设置
   },
 }
 
@@ -94,7 +94,7 @@ function makeOption(type, symbol) {
       ],
       // 设置图例字体颜色
       textStyle: {
-        color: '#00BFFF',
+        color: '#3C9DFF',
         fontSize: 14,
       },
       itemWidth: 20, // 图例标记的宽度
@@ -125,7 +125,7 @@ function makeOption(type, symbol) {
       axisLabel: {
         margin: 30,
         fontSize: 14,
-        color: '#9fe9f0',
+        color: '#475567',
       },
       axisPointer: {
         label: {

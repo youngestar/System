@@ -141,7 +141,7 @@ const scatterOption = {
   title: {
     text: '日常运维-漏洞严重程度、数量与修复时间分布',
     textStyle: {
-      color: '#fff',
+      color: '#56667c',
     },
   },
   tooltip: {
@@ -164,10 +164,10 @@ const scatterOption = {
     scale: true,
     max: 10,
     axisLabel: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     nameTextStyle: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     axisLine: {
       lineStyle: {
@@ -188,10 +188,10 @@ const scatterOption = {
     name: '发现的漏洞数量',
     scale: true,
     axisLabel: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     nameTextStyle: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     axisLine: {
       lineStyle: {
@@ -220,7 +220,7 @@ const scatterOption = {
     },
     calculable: true,
     textStyle: {
-      color: '#00BFFF',
+      color: '#3C9DFF',
     },
   },
   series: [
@@ -261,7 +261,7 @@ const barOption = {
   title: {
     text: '日常运维-不同时间段不同类型安全事件发生次数',
     textStyle: {
-      color: '#fff',
+      color: '#56667c',
     },
   },
   tooltip: {
@@ -274,7 +274,7 @@ const barOption = {
   legend: {
     data: securityEventData[0].events.map((item) => item.name),
     textStyle: {
-      color: '#00BFFF',
+      color: '#3C9DFF',
     },
     top: '8%',
     itemWidth: 20,
@@ -292,10 +292,10 @@ const barOption = {
     type: 'category',
     data: securityEventData.map((item) => item.timePeriod),
     axisLabel: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     nameTextStyle: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     axisLine: {
       lineStyle: {
@@ -315,10 +315,10 @@ const barOption = {
     type: 'value',
     name: '发生次数',
     axisLabel: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     nameTextStyle: {
-      color: '#9fe9f0',
+      color: '#475567',
     },
     axisLine: {
       lineStyle: {

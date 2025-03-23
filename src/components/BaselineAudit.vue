@@ -109,7 +109,7 @@ const initChart = () => {
           formatter: '{b}: {d}%',
           textStyle: {
             fontSize: 10,
-            color: '#9fe9f0',
+            color: '#475567',
           },
         },
         labelLine: {
@@ -129,7 +129,7 @@ const initChart = () => {
           formatter: '{b}: {d}%',
           textStyle: {
             fontSize: 10,
-            color: '#9fe9f0',
+            color: '#475567',
           },
         },
         labelLine: {
@@ -149,7 +149,7 @@ const initChart = () => {
           formatter: '{b}: {d}%',
           textStyle: {
             fontSize: 10,
-            color: '#9fe9f0',
+            color: '#475567',
           },
         },
         labelLine: {

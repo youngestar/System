@@ -177,7 +177,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
 .el-col {
   width: 100%;
   height: 95vh;
-  /* border: 1px solid #fff; */
+  /* border: 1px solid #56667C; */
 }
 
 #mainTitle {
@@ -198,7 +198,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   height: 58%;
   margin-top: 1.5%;
   /* 背景黑色卡片 */
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(242, 245, 255, 0.1);
   border: 1px solid rgba(56, 209, 163, 0.17);
 
   /* 背景图片设置 */
@@ -209,7 +209,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url(@/assets/img4.gif);
+    background-image: url(/src/assets/2_gif_2.gif);
     background-size: cover;
     opacity: 0.3;
     /* 设置透明度，取值范围 0 - 1，0 为完全透明，1 为完全不透明 */
@@ -251,7 +251,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   width: 96%;
   height: 33.3%;
   margin: 1vh auto;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(242, 245, 255, 0.1);
   border: 1px solid rgba(56, 209, 163, 0.17);
 
   &::before {
@@ -283,7 +283,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url(@/assets/img2.gif);
+    background-image: url(/src/assets/2_gif_3.gif);
     background-size: cover;
     opacity: 0.4;
     /* 设置透明度，取值范围 0 - 1，0 为完全透明，1 为完全不透明 */
@@ -327,30 +327,33 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   width: 100%;
   height: 33%;
   margin-top: 1.5%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(242, 245, 255, 0.5);
   border: 1px solid rgba(56, 209, 163, 0.17);
-
-  &::before {
+  border-radius: 2vh;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+  /* &::before {
     position: absolute;
     top: 0;
     left: 0;
-    width: 1vh;
-    height: 1vh;
+    width: 2vh;
+    height: 2vh;
     border-top: 0.25vh solid #02a6b5;
     border-left: 0.25vh solid #02a6b5;
     content: '';
+    border-radius: 2vh;
   }
 
   &::after {
     position: absolute;
     top: 0;
     right: 0;
-    width: 1vh;
-    height: 1vh;
+    width: 2vh;
+    height: 2vh;
     border-top: 0.25vh solid #02a6b5;
     border-right: 0.25vh solid #02a6b5;
     content: '';
-  }
+    border-radius: 2vh;
+  } */
 }
 
 .container-footer {
@@ -358,28 +361,30 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   bottom: 0;
   left: 0;
   width: 100%;
-
-  &::before {
+  /* border-radius:; */
+  /* &::before {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 1vh;
-    height: 1vh;
+    width: 2vh;
+    height: 2vh;
     border-bottom: 0.25vh solid #02a6b5;
     border-left: 0.25vh solid #02a6b5;
     content: '';
+    border-radius: 2vh;
   }
 
   &::after {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 1vh;
-    height: 1vh;
+    width: 2vh;
+    height: 2vh;
     border-bottom: 0.25vh solid #02a6b5;
     border-right: 0.25vh solid #02a6b5;
     content: '';
-  }
+    border-radius: 2vh;
+  } */
 }
 
 .full-screen {
@@ -403,13 +408,13 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
 body {
   width: 100%;
   height: 100%;
-  background-image: url(@/assets/mainbg2.jpg);
+  background-image: url(/src/assets/2_bg_2.jpg);
   background-size: cover;
-  color: #fff;
+  color: #56667c;
 }
 
 .echartsMessageBox {
-  background-image: url(@/assets/img2.gif);
+  background-image: url(/src/assets/2_gif_2.gif);
   background-size: cover;
   border: 2px solid #02a6b5;
   &::before {
@@ -423,7 +428,7 @@ body {
     opacity: 0.3;
   }
   p {
-    color: #fff;
+    color: #56667c;
     font-weight: bold;
   }
 }

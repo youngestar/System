@@ -69,12 +69,12 @@ const initChart = () => {
       xAxis: {
         name: '次数',
         nameTextStyle: {
-          color: '#9fe9f0',
+          color: '#475567',
           fontSize: 12,
         },
         axisLabel: {
           textStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             fontSize: 12,
           },
         },
@@ -91,7 +91,7 @@ const initChart = () => {
         type: 'category',
         axisLabel: {
           textStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             fontSize: 12,
           },
         },
@@ -111,7 +111,7 @@ const initChart = () => {
         max: 100,
         text: ['高风险', '低风险'],
         textStyle: {
-          color: '#00BFFF',
+          color: '#3C9DFF',
           fontSize: 12,
         },
         // Map the score column to color

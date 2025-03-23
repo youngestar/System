@@ -66,7 +66,7 @@ const initChart = () => {
       legend: {
         top: '5%',
         textStyle: {
-          color: '#00BFFF',
+          color: '#AABBF6',
           fontSize: 14,
         },
         itemWidth: 20,
@@ -86,7 +86,7 @@ const initChart = () => {
           // 设置饼图标签字体样式，包含颜色和大小
           label: {
             textStyle: {
-              color: '#9fe9f0',
+              color: '#475567',
               fontSize: 12,
             },
             // 显示标签

@@ -71,7 +71,7 @@ const initChart = () => {
     // legend: {
     //     top: '5%',
     //     textStyle: {
-    //         color: '#00BFFF',
+    //         color: '#3C9DFF',
     //         fontSize: 12
     //     },
     //     itemWidth: 15,
@@ -92,20 +92,20 @@ const initChart = () => {
         data: ['DDoS攻击', 'SQL注入', '网络钓鱼', '恶意软件', 'XSS攻击', '漏洞利用', '其他'],
         axisLabel: {
           textStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             fontSize: 12,
           },
           rotate: window.innerWidth < 600 ? 45 : 0,
         },
         axisLine: {
           lineStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             width: 1,
           },
         },
         axisTick: {
           lineStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             width: 1,
           },
         },
@@ -118,24 +118,24 @@ const initChart = () => {
         // 假设y轴为溯源成功次数
         name: '溯源成功次数',
         nameTextStyle: {
-          color: '#9fe9f0',
+          color: '#475567',
           fontSize: 12,
         },
         axisLabel: {
           textStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             fontSize: 12,
           },
         },
         axisLine: {
           lineStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             width: 1,
           },
         },
         axisTick: {
           lineStyle: {
-            color: '#9fe9f0',
+            color: '#475567',
             width: 1,
           },
         },

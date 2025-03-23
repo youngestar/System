@@ -86,7 +86,7 @@ const generateSeriesList = () => {
         formatter: '{a}',
         distance: 20,
         textStyle: {
-          color: '#00BFFF', // 设置折线末端标签字体颜色
+          color: '#3C9DFF', // 设置折线末端标签字体颜色
         },
       },
       lineStyle: {
@@ -147,7 +147,7 @@ const initChart = () => {
         fontSize: 14,
         interval: '0', // 自动调整标签显示间隔
         textStyle: {
-          color: '#9fe9f0', // X 轴标签字体颜色设置
+          color: '#475567', // X 轴标签字体颜色设置
         },
       },
       boundaryGap: false,
@@ -170,14 +170,14 @@ const initChart = () => {
         fontSize: 16,
         formatter: '{value}',
         textStyle: {
-          color: '#9fe9f0', // Y 轴标签字体颜色设置
+          color: '#475567', // Y 轴标签字体颜色设置
         },
       },
       min: 0,
     },
     legend: {
       textStyle: {
-        color: '#00BFFF',
+        color: '#3C9DFF',
         fontSize: 14,
       },
       itemWidth: 20,
