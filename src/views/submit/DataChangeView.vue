@@ -232,18 +232,20 @@ const options = [
       </el-form-item>
       <el-form-item label="保护类型" prop="type">
         <el-checkbox-group v-model="ruleForm.type">
-          <el-checkbox value="防火墙保护" name="type" style="color: #fff"> 防火墙保护 </el-checkbox>
-          <el-checkbox value="DDoS攻击防护" name="type" style="color: #fff">
+          <el-checkbox value="防火墙保护" name="type" style="color: #56667c">
+            防火墙保护
+          </el-checkbox>
+          <el-checkbox value="DDoS攻击防护" name="type" style="color: #56667c">
             DDoS攻击防护
           </el-checkbox>
-          <el-checkbox value="入侵检测" name="type" style="color: #fff"> 入侵检测 </el-checkbox>
-          <el-checkbox value="数据加密" name="type" style="color: #fff"> 数据加密 </el-checkbox>
+          <el-checkbox value="入侵检测" name="type" style="color: #56667c"> 入侵检测 </el-checkbox>
+          <el-checkbox value="数据加密" name="type" style="color: #56667c"> 数据加密 </el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <el-form-item label="保护资源" prop="resource">
         <el-radio-group v-model="ruleForm.resource">
-          <el-radio value="云服务" style="color: #fff">云服务</el-radio>
-          <el-radio value="本地解决方案" style="color: #fff">本地解决方案</el-radio>
+          <el-radio value="云服务" style="color: #56667c">云服务</el-radio>
+          <el-radio value="本地解决方案" style="color: #56667c">本地解决方案</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="保护描述" prop="desc">
@@ -273,8 +275,8 @@ const options = [
   position: relative;
   width: 60%;
   margin: 1vh auto;
-  /* 背景黑色卡片 */
-  background-color: rgba(0, 0, 0, 0.3);
+  /* 背景白色卡片 */
+  background-color: rgba(255, 255, 255, 0.3);
   border: 0.25vh solid #fff;
   border-radius: 2vh;
   font-size: 1.5vh;
@@ -286,10 +288,12 @@ const options = [
     content: '';
     height: 100%;
     width: 100%;
-    background-image: url(@/assets/img1.gif);
+    background-image: url(@/assets/2_gif_2.gif);
     background-size: cover;
-    opacity: 0.5;
+    opacity: 1;
     z-index: -1;
+
+    border-radius: 2vh;
   }
 
   .el-form-item {
@@ -300,6 +304,6 @@ const options = [
 
 <style>
 .el-form-item .el-form-item__label {
-  color: #fff; /* 改变标签颜色为白色 */
+  color: #56667c; /* 改变标签颜色为白色 */
 }
 </style>

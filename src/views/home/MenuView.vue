@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Operation, Menu, Document, Switch, User } from '@element-plus/icons-vue'
+import { Operation, Menu, Document, Switch, Opportunity } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useChatStore } from '../../stores/chat'
@@ -57,10 +57,10 @@ const nowActive = ref('home')
     v-model="drawer"
     title="I am the title"
     :direction="'ltr'"
-    style="background-color: #545c64"
+    style="background-color: #f3f4f6"
   >
     <template #header>
-      <h4 style="color: #fff">
+      <h4 style="color: #4c6bfb">
         <el-icon style="position: relative; top: 2px">
           <Operation />
         </el-icon>
@@ -69,10 +69,11 @@ const nowActive = ref('home')
     </template>
     <template #default>
       <el-menu
-        active-text-color="#ffd04b"
-        background-color="#545c64"
+        id="main-menu"
+        active-text-color="#4c6bfb"
+        background-color="#f3f4f6"
         :default-active="nowActive"
-        text-color="#fff"
+        text-color="#444444"
         @select="turnTo"
       >
         <!-- <el-menu-item index="login">
@@ -88,12 +89,7 @@ const nowActive = ref('home')
           <span>日志记录</span>
         </el-menu-item>
         <el-menu-item index="chat">
-          <img
-            src="@/assets/light.svg"
-            alt="AI"
-            width="20px"
-            style="position: relative; left: 2px; margin-right: 9px"
-          />
+          <el-icon><Opportunity /></el-icon>
           <span>智能对话</span>
         </el-menu-item>
         <!-- <el-menu-item index="submit">
@@ -186,5 +182,9 @@ const nowActive = ref('home')
   font-size: 1.6vh;
   margin-left: 1em;
   margin-top: 1em;
+}
+
+#main-menu .el-menu-item:hover {
+  background-color: #f3f4f6 !important; /* 设置悬停背景色 */
 }
 </style>

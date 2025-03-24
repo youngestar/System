@@ -198,8 +198,10 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   height: 58%;
   margin-top: 1.5%;
   /* 背景黑色卡片 */
-  background-color: rgba(242, 245, 255, 0.1);
+  background-color: rgba(242, 245, 255, 0.5);
   border: 1px solid rgba(56, 209, 163, 0.17);
+  border-radius: 2.5vh;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 
   /* 背景图片设置 */
   &::before {
@@ -211,38 +213,11 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
     height: 100%;
     background-image: url(/src/assets/2_gif_2.gif);
     background-size: cover;
-    opacity: 0.3;
+    opacity: 0.8;
     /* 设置透明度，取值范围 0 - 1，0 为完全透明，1 为完全不透明 */
     z-index: -1;
     /* 确保伪元素在内容下方 */
-  }
-
-  .mainTop-footer {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-
-    &::before {
-      position: absolute;
-      top: 0;
-      left: 0;
-      content: '';
-      width: 2.5vw;
-      height: 2.5vh;
-      border-top: 0.4vh solid #02a6b5;
-      border-left: 0.4vh solid #02a6b5;
-    }
-
-    &::after {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      content: '';
-      width: 2.5vw;
-      height: 2.5vh;
-      border-bottom: 0.4vh solid #02a6b5;
-      border-right: 0.4vh solid #02a6b5;
-    }
+    border-radius: 2.5vh;
   }
 }
 
@@ -253,28 +228,8 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   margin: 1vh auto;
   background-color: rgba(242, 245, 255, 0.1);
   border: 1px solid rgba(56, 209, 163, 0.17);
-
-  &::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 1.5vw;
-    height: 1.5vh;
-    border-top: 0.3vh solid #02a6b5;
-    border-left: 0.3vh solid #02a6b5;
-    content: '';
-  }
-
-  &::after {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 1.5vw;
-    height: 1.5vh;
-    border-top: 0.3vh solid #02a6b5;
-    border-right: 0.3vh solid #02a6b5;
-    content: '';
-  }
+  border-radius: 2.5vh;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 
   .mainBottom-img::before {
     content: '';
@@ -285,40 +240,11 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
     height: 100%;
     background-image: url(/src/assets/2_gif_3.gif);
     background-size: cover;
-    opacity: 0.4;
+    opacity: 0.6;
     /* 设置透明度，取值范围 0 - 1，0 为完全透明，1 为完全不透明 */
     z-index: -1;
     /* 确保伪元素在内容下方 */
-  }
-
-  .mainBottom-footer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .mainBottom-footer::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 1.5vw;
-    height: 1.5vh;
-    border-bottom: 0.3vh solid #02a6b5;
-    border-left: 0.3vh solid #02a6b5;
-  }
-
-  .mainBottom-footer::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 1.5vw;
-    height: 1.5vh;
-    border-bottom: 0.3vh solid #02a6b5;
-    border-right: 0.3vh solid #02a6b5;
+    border-radius: 2.5vh;
   }
 }
 
@@ -331,29 +257,6 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   border: 1px solid rgba(56, 209, 163, 0.17);
   border-radius: 2vh;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
-  /* &::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 2vh;
-    height: 2vh;
-    border-top: 0.25vh solid #02a6b5;
-    border-left: 0.25vh solid #02a6b5;
-    content: '';
-    border-radius: 2vh;
-  }
-
-  &::after {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 2vh;
-    height: 2vh;
-    border-top: 0.25vh solid #02a6b5;
-    border-right: 0.25vh solid #02a6b5;
-    content: '';
-    border-radius: 2vh;
-  } */
 }
 
 .container-footer {
@@ -361,30 +264,6 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   bottom: 0;
   left: 0;
   width: 100%;
-  /* border-radius:; */
-  /* &::before {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 2vh;
-    height: 2vh;
-    border-bottom: 0.25vh solid #02a6b5;
-    border-left: 0.25vh solid #02a6b5;
-    content: '';
-    border-radius: 2vh;
-  }
-
-  &::after {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 2vh;
-    height: 2vh;
-    border-bottom: 0.25vh solid #02a6b5;
-    border-right: 0.25vh solid #02a6b5;
-    content: '';
-    border-radius: 2vh;
-  } */
 }
 
 .full-screen {
@@ -417,6 +296,7 @@ body {
   background-image: url(/src/assets/2_gif_2.gif);
   background-size: cover;
   border: 2px solid #02a6b5;
+  border-radius: 4vh;
   &::before {
     content: '';
     position: absolute;
@@ -424,8 +304,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #000 !important;
-    opacity: 0.3;
+    background-color: #fff !important;
+    opacity: 0.5;
+    border-radius: 4vh;
   }
   p {
     color: #56667c;

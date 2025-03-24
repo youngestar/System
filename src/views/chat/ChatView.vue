@@ -298,8 +298,8 @@ onUnmounted(() => {
       <!-- 对话操作菜单 -->
       <el-menu
         active-text-color="#4c6bfb"
-        background-color="#242424"
-        text-color="#fff"
+        background-color="#f3f4f6"
+        text-color="#444444"
         v-model="isViewingChat"
         default-active="0"
         @select="selectChat"
@@ -519,7 +519,7 @@ body {
     #topTitle {
       height: 4vh;
       margin: 0 auto;
-      color: #fff;
+      color: #56667c;
       text-align: center;
       line-height: 4vh;
       font-size: 1.8vh;
@@ -543,9 +543,9 @@ body {
         line-height: 2vh;
         margin: 2vh 0;
         padding: 1.5vh;
-        background-color: #484058;
+        background-color: #f3f4f6;
         border-radius: 1.2vh;
-        color: #fff;
+        color: #56667c;
       }
 
       .system {
@@ -555,7 +555,7 @@ body {
         padding: 1.5vh;
         margin: 2vh 0;
         /* background-color: #fff; */
-        color: #fff;
+        color: #56667c;
         float: left;
 
         &::before {
@@ -573,8 +573,8 @@ body {
     /* 通用文本域样式 */
     .input :deep(.el-textarea__inner) {
       height: 200px;
-      background-color: #444444;
-      color: #fff;
+      background-color: #f3f4f6;
+      color: #444444;
       border-radius: 20px;
     }
 
