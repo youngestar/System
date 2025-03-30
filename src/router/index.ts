@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
-import MenuView from '@/views/home/MenuView.vue'
+import LayoutView from '@/views/home/LayoutView.vue'
 import LogoView from '../views/home/LogoView.vue'
 import HomeView from '../views/tables/HomeView.vue'
 import { useUserStore } from '@/stores/login'
@@ -8,9 +8,9 @@ import { ElMessage } from 'element-plus'
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/menu',
-    name: 'menu',
-    component: MenuView,
+    path: '/layout',
+    name: 'layout',
+    component: LayoutView,
     children: [
       {
         path: '/home',

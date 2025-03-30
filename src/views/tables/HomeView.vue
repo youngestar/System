@@ -195,7 +195,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
   position: relative;
   width: 96%;
   margin: 0.5vh auto;
-  height: 58%;
+  height: 57.5%;
   margin-top: 1.5%;
   /* 背景黑色卡片 */
   background-color: rgba(242, 245, 255, 0.5);
@@ -224,7 +224,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
 #mainBottom {
   position: relative;
   width: 96%;
-  height: 33.3%;
+  height: 34%;
   margin: 1vh auto;
   background-color: rgba(242, 245, 255, 0.1);
   border: 1px solid rgba(56, 209, 163, 0.17);
@@ -285,8 +285,6 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
 
 <style>
 body {
-  width: 100%;
-  height: 100%;
   background-image: url(/src/assets/2_bg_2.jpg);
   background-size: cover;
   color: #56667c;

@@ -7,7 +7,7 @@ import type { Ref } from 'vue'
 import OpenAI from 'openai'
 import { marked } from 'marked'
 import router from '@/router'
-import { system_prompt } from '../temp'
+import { system_prompt, title_prompt } from '../temp'
 // 对话分区接口
 interface allChat {
   isSending: boolean
@@ -165,19 +165,12 @@ async function chatWithModel(chatMessage: string): Promise<void> {
       content: system_prompt,
     })
     chatHistory.value.push({
+      role: 'system',
+      content: title_prompt,
+    })
+    chatHistory.value.push({
       role: 'user',
-      content:
-        // 提示词, 生成标题
-        <string>chatMessage +
-        // '¡' +
-        '¡回复格式规范：在回复带有"回复样式规范"字样的问题时，请使用"¡"作为分隔符，将[问题内容总结的标题]直接拼接在回复正文后,不换行不空格。' +
-        '\n' +
-        '注意:\n' +
-        '1.后续对话自动恢复标准对话格式，不再添加标题后缀\n' +
-        '2.标题字符数控制在12个字符以内\n' +
-        '3.标题应该精确提炼前文核心诉求\n' +
-        '例 :用户提问:1+1=?\n' +
-        '返回格式: 1+1=2¡简单数学问题:1+1=?',
+      content: chatMessage,
     })
   } else {
     chatHistory.value.push({
@@ -199,8 +192,6 @@ async function chatWithModel(chatMessage: string): Promise<void> {
         signal: controller.signal,
       },
     )
-    // 标题分割指标
-    let titleFlag: boolean = false
     // 提取流式响应数据
     for await (const chunk of stream) {
       const response = chunk.choices[0]
@@ -218,29 +209,14 @@ async function chatWithModel(chatMessage: string): Promise<void> {
         // console.log('获取role失败');
       }
       const delta = response?.delta?.content
-      // console.log(delta)
-      if (titleFlag === false) {
-        if (delta?.includes('¡')) {
-          allChats.value[isViewingChat.value].title = ''
-          titleFlag = true
-        } else if (delta) {
-          // 使用了类型断言,可能导致错误请注意
-          chatHistory.value.at(-1)!.content += delta
-        }
-      } else if (titleFlag === true) {
-        if (delta) {
-          // 使用了类型断言,可能导致错误请注意
-          if (allChats.value[isViewingChat.value].title.length >= 12) {
-            allChats.value[isViewingChat.value].title = '内容加载失败, 请重试'
-            return
-          } else allChats.value[isViewingChat.value].title += delta
-        }
-        if (allChats.value[isViewingChat.value].title === '回复格式规范') {
-          allChats.value[isViewingChat.value].title = '无标题'
-        }
-      } else {
-        console.error('标题加载失败')
+      // 使用了类型断言,可能导致错误请注意
+      if (delta) {
+        chatHistory.value.at(-1)!.content! += delta
       }
+    }
+    if (chatHistory.value.at(-1)!.content!.toString().includes('为您提炼标题:')) {
+      allChats.value[isViewingChat.value].title =
+        chatHistory.value.at(-1)!.content?.toString().split('为您提炼标题:')[1] + ''
     }
     // console.log(chatHistory.value);
   } catch (error) {
@@ -349,7 +325,7 @@ onUnmounted(() => {
                   style="
                     width: 100%;
                     height: 30px;
-                    color: #fff;
+                    color: #3c3c44;
                     font-size: 14px;
                     position: relative;
                     top: 10px;
@@ -406,16 +382,18 @@ onUnmounted(() => {
                 <!-- {{ item.content }} -->
               </div>
               <div
-                v-else
+                v-else-if="item.role !== 'system'"
                 v-html="
                   renderMarkdown(
-                    (item.content as string) === '' ? '回复失败,请再试一次' : '' + item.content,
+                    (item.content as string) === ''
+                      ? '没有理解您的要求, 请您再说一次'
+                      : '' + item.content,
                   )
                 "
-                class="system"
+                class="assistant"
               ></div>
             </div>
-            <div v-show="allChats[isViewingChat].isSending" class="system">
+            <div v-show="allChats[isViewingChat].isSending" class="assistant">
               <el-icon id="loading">
                 <img src="@/assets/loading.svg" alt="loading" width="25px" />
               </el-icon>
@@ -548,7 +526,7 @@ body {
         color: #56667c;
       }
 
-      .system {
+      .assistant {
         position: relative;
         width: auto;
         width: 100%;
@@ -637,7 +615,7 @@ body {
   width: 50px !important;
   min-width: none;
   height: 80px;
-  background-color: #3c3c44;
+  background-color: #fff;
   border: none;
   padding: 0;
 }
