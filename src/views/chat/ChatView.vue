@@ -55,12 +55,6 @@ const selectChat = (index: number) => {
   isViewingChat.value = index
   // 消息未发送完成, 阻止重新导航
   if (index >= 0) {
-    if (allChats.value[isViewingChat.value].isSending === true && index !== isViewingChat.value) {
-      ElMessage({
-        message: '当前有消息在响应哦, 请等一下吧',
-      })
-      return
-    }
     // 正常导航到标题
     if (index >= 0) {
       router.replace({
