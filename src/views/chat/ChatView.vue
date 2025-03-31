@@ -1,3 +1,4 @@
+<!-- eslint-disable prefer-const -->
 <script setup lang="ts">
 import { Top, Plus, Edit, Delete, More, ArrowDownBold } from '@element-plus/icons-vue'
 import { useChatStore } from '@/stores/chat'
@@ -188,22 +189,25 @@ async function chatWithModel(chatMessage: string): Promise<void> {
   abortController.value?.abort()
   const controller = new AbortController()
   abortController.value = controller
+  // 更替可变变量为不可变变量
+  const sendChatHistory = chatHistory.value
+  const sendViewing = isViewingChat.value
   // 添加到历史对话
-  if (chatHistory.value.length === 0) {
-    chatHistory.value.push({
+  if (sendChatHistory.length === 0) {
+    sendChatHistory.push({
       role: 'system',
       content: system_prompt,
     })
-    chatHistory.value.push({
+    sendChatHistory.push({
       role: 'system',
       content: title_prompt,
     })
-    chatHistory.value.push({
+    sendChatHistory.push({
       role: 'user',
       content: chatMessage,
     })
   } else {
-    chatHistory.value.push({
+    sendChatHistory.push({
       role: 'user',
       content: <string>chatMessage,
     })
@@ -214,7 +218,7 @@ async function chatWithModel(chatMessage: string): Promise<void> {
     const stream = await openai.chat.completions.create(
       {
         model: 'deepseek-chat',
-        messages: chatHistory.value,
+        messages: sendChatHistory,
         store: true,
         stream: true,
       },
@@ -230,12 +234,12 @@ async function chatWithModel(chatMessage: string): Promise<void> {
       // 尝试获取 role
       if (!role && response?.delta?.role) {
         role = response?.delta?.role
-        chatHistory.value.push({
+        sendChatHistory.push({
           role: role,
           content: '',
           tool_call_id: response?.delta?.tool_calls?.[0]?.id ?? '', // 新增 tool_call_id，默认为空字符串
         })
-        allChats.value[isViewingChat.value].isSending = false
+        allChats.value[sendViewing].isSending = false
         // console.log('获取到role');
       } else {
         // console.log('获取role失败');
@@ -243,7 +247,7 @@ async function chatWithModel(chatMessage: string): Promise<void> {
       const delta = response?.delta?.content
       // 使用了类型断言,可能导致错误请注意
       if (delta) {
-        chatHistory.value.at(-1)!.content! += delta
+        sendChatHistory.at(-1)!.content! += delta
       }
       if (scrollbarToBottom.value! >= -200) {
         count++
@@ -252,25 +256,25 @@ async function chatWithModel(chatMessage: string): Promise<void> {
         }
       }
     }
-    if (chatHistory.value.at(-1)!.content!.toString().includes('为您提炼标题:')) {
-      allChats.value[isViewingChat.value].title =
-        chatHistory.value.at(-1)!.content?.toString().split('为您提炼标题:')[1] + ''
+    if (sendChatHistory.at(-1)!.content!.toString().includes('为您提炼标题:')) {
+      allChats.value[sendViewing].title =
+        sendChatHistory.at(-1)!.content?.toString().split('为您提炼标题:')[1] + ''
     }
     if (scrollbarToBottom.value! >= -200) {
       scrollToBottom()
     }
-    // console.log(chatHistory.value);
+    // console.log(sendChatHistory);
   } catch (error) {
     if (error instanceof Error) {
       if (error.message?.includes('abort')) {
         // 使用了类型断言,可能导致错误请注意
-        chatHistory.value.at(-2)!.content += '(该对话被中断)'
+        sendChatHistory.at(-2)!.content += '(该对话被中断)'
         return
       }
     }
     console.error('请求出错:', error)
   }
-  // console.log(chatHistory.value)
+  // console.log(sendChatHistory.value)
 }
 
 // 换行检测函数
