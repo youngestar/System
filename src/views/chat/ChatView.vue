@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Top, Plus, Edit, Delete, More } from '@element-plus/icons-vue'
+import { Top, Plus, Edit, Delete, More, ArrowDownBold } from '@element-plus/icons-vue'
 import { useChatStore } from '@/stores/chat'
-import { ref, watch, onUnmounted, computed } from 'vue'
-import { ElMessage, type ElInput } from 'element-plus'
+import { ref, watch, onUnmounted, computed, nextTick } from 'vue'
+import { ElMessage, type ElInput, type ElScrollbar } from 'element-plus'
 import type { Ref } from 'vue'
 import OpenAI from 'openai'
 import { marked } from 'marked'
@@ -28,6 +28,12 @@ const interimName = ref<string>('')
 // const editNameInputRef: Ref<InstanceType<typeof ElInput> | null> = ref(null)
 const titleNameChanging: Ref<number> = ref(-1)
 const titlePopover = ref(null)
+
+// 滚动元素 DOM 获取
+const scrollbarRef: Ref<InstanceType<typeof ElScrollbar> | null> = ref(null)
+
+// 滚动距离检查
+const scrollbarToBottom: Ref<number | null> = ref(-9999)
 
 // 总对话储存
 // 每个对话会有 title 和 history, 对话之间隔离, 通过操作可以添加新的对话
@@ -75,7 +81,7 @@ const selectChat = (index: number) => {
   }
 }
 
-// 添加新对话函数-
+// 添加新对话函数
 const addNewChat = () => {
   // 消息数量过多时阻止添加
   if (allChats.value.length >= 15) {
@@ -107,6 +113,30 @@ const titleNameChange = (index: number) => {
 const handleBlur = (index: number) => {
   titleNameChanging.value = -1
   editChatName(index)
+}
+
+// 处理滚动函数
+const handleScroll = () => {
+  let scrollSetTimer
+  if (scrollSetTimer) clearTimeout(scrollSetTimer)
+  scrollSetTimer = setTimeout(() => {
+    scrollbarToBottom.value =
+      scrollbarRef.value?.$el.querySelector('.el-scrollbar__wrap').scrollTop -
+      scrollbarRef.value?.$el.querySelector('.el-scrollbar__wrap').scrollHeight +
+      scrollbarRef.value?.$el.querySelector('.el-scrollbar__wrap').clientHeight
+  }, 500)
+}
+
+// 回复滚动函数
+const scrollToBottom = () => {
+  const scrollContainer = scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap')
+  if (scrollContainer) {
+    // 使用原生 DOM API 实现滚动
+    scrollContainer.scrollTo({
+      top: scrollContainer.scrollHeight,
+      behavior: 'smooth',
+    })
+  }
 }
 
 // 对话改名函数
@@ -178,6 +208,7 @@ async function chatWithModel(chatMessage: string): Promise<void> {
       content: <string>chatMessage,
     })
   }
+  await nextTick(() => scrollToBottom())
   let role = null
   try {
     const stream = await openai.chat.completions.create(
@@ -192,6 +223,7 @@ async function chatWithModel(chatMessage: string): Promise<void> {
         signal: controller.signal,
       },
     )
+    let count = 0
     // 提取流式响应数据
     for await (const chunk of stream) {
       const response = chunk.choices[0]
@@ -213,10 +245,19 @@ async function chatWithModel(chatMessage: string): Promise<void> {
       if (delta) {
         chatHistory.value.at(-1)!.content! += delta
       }
+      if (scrollbarToBottom.value! >= -200) {
+        count++
+        if (count % 15 === 0) {
+          scrollToBottom()
+        }
+      }
     }
     if (chatHistory.value.at(-1)!.content!.toString().includes('为您提炼标题:')) {
       allChats.value[isViewingChat.value].title =
         chatHistory.value.at(-1)!.content?.toString().split('为您提炼标题:')[1] + ''
+    }
+    if (scrollbarToBottom.value! >= -200) {
+      scrollToBottom()
     }
     // console.log(chatHistory.value);
   } catch (error) {
@@ -229,7 +270,6 @@ async function chatWithModel(chatMessage: string): Promise<void> {
     }
     console.error('请求出错:', error)
   }
-
   // console.log(chatHistory.value)
 }
 
@@ -261,10 +301,24 @@ function renderMarkdown(markdown: string) {
 }
 
 // chatWithModel("你好!现在开始,每次请求后你将回复我一个报数,从 1 开始,每次 +1");
-
 onUnmounted(() => {
   abortController.value?.abort()
 })
+
+watch(
+  () => [
+    scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollTop,
+    scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').clientHeight,
+    scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollHeight,
+  ],
+  () => {
+    scrollbarToBottom.value =
+      scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollTop +
+      scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollHeight -
+      scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').clientHeight
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -279,7 +333,7 @@ onUnmounted(() => {
         v-model="isViewingChat"
         default-active="0"
         @select="selectChat"
-        style="height: calc(100vh - 32px)"
+        style="height: calc(100vh - 16px)"
       >
         <el-menu-item index="-1">
           <div type="primary" id="addChatButton">
@@ -369,16 +423,12 @@ onUnmounted(() => {
         <div id="topTitle">
           {{ allChats[isViewingChat].title }}
         </div>
-        <el-scrollbar height="80vh" always>
+        <el-scrollbar ref="scrollbarRef" height="80vh" always @scroll="handleScroll">
           <!-- 对话内容展示 -->
-          <div id="chatContent" style="white-space: pre-wrap">
+          <div id="chatContent" style="white-space: pre-wrap" ref="lastChatDOMRef">
             <div v-for="(item, index) in chatHistory" :key="index">
               <div v-if="item.role === 'user'" class="user">
-                {{
-                  typeof item.content === 'string'
-                    ? item.content.split('¡回复格式规范')[0]
-                    : item.content
-                }}
+                {{ item.content }}
                 <!-- {{ item.content }} -->
               </div>
               <div
@@ -424,6 +474,15 @@ onUnmounted(() => {
             <el-icon :size="22" :color="inputButtonColor">
               <Top></Top>
             </el-icon>
+          </el-button>
+          <el-button
+            v-show="scrollbarToBottom! <= -200"
+            circle
+            size="large"
+            style="position: absolute; right: 20px; top: -50px"
+            @click="scrollToBottom"
+          >
+            <el-icon><ArrowDownBold /></el-icon>
           </el-button>
         </el-form-item>
       </div>

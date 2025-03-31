@@ -182,7 +182,7 @@ const showCharts = (charts: DefineComponent<object, object, any> | null, props: 
 
 #mainTitle {
   position: relative;
-  width: 96%;
+  width: 95.6%;
   height: 7vh;
   margin: auto;
   padding: 0 2%;
