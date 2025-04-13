@@ -53,7 +53,6 @@ const chatHistory = computed(() => {
 // 总对话切换函数
 const selectChat = (index: number) => {
   isViewingChat.value = index
-  // 消息未发送完成, 阻止重新导航
   if (index >= 0) {
     // 正常导航到标题
     if (index >= 0) {
