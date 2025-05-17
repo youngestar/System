@@ -19,11 +19,6 @@ export const useChatStore = defineStore(
         title: '默认对话',
         history: [],
       },
-      {
-        isSending: false,
-        title: '默认对话',
-        history: [],
-      },
     ])
     // 添加聊天函数
     const addNewChat = () => {

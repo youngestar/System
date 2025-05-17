@@ -2,7 +2,7 @@
 import { reactive, ref, type Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormRules, FormInstance } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
+import { User, Lock, Message, ChatDotRound } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/login'
 import router from '@/router'
 
@@ -62,7 +62,7 @@ const loginForm = reactive({
 })
 
 const loginRules = reactive<FormRules<typeof loginForm>>({
-  name: [{ validator: validateName, trigger: 'submit' }],
+  name: [{ validator: validateName, trigger: 's' }],
   password: [{ validator: validatePassword, trigger: 'submit' }],
 })
 
@@ -108,12 +108,18 @@ const registerForm = reactive({
   name: '',
   password: '',
   checkPassword: '',
+  email: '',
+  imageVerificationCode: '',
+  emailVerificationCode: '',
 })
 
 const registerRules = reactive<FormRules<typeof registerForm>>({
   name: [{ validator: validateName, trigger: 'submit' }],
   password: [{ validator: validatePassword, trigger: 'submit' }],
   checkPassword: [{ validator: validateCheckPassword, trigger: 'submit' }],
+  email: [{ required: true, message: '请填写邮箱', trigger: 'submit' }],
+  imageVerificationCode: [{ required: true, message: '请填写图片验证码', trigger: 'submit' }],
+  emailVerificationCode: [{ required: true, message: '请填写邮箱验证码', trigger: 'submit' }],
 })
 
 // 注册函数
@@ -235,6 +241,54 @@ const register = (formEI: FormInstance | undefined) => {
             </template>
           </el-input>
         </el-form-item>
+        <el-form-item prop="email">
+          <el-input
+            v-model="registerForm.checkPassword"
+            type="text"
+            :maxlength="20"
+            placeholder="请输入邮箱"
+          >
+            <template #prefix>
+              <el-icon>
+                <Message />
+              </el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="emailVerificationCode">
+          <el-input
+            v-model="registerForm.emailVerificationCode"
+            :maxlength="6"
+            placeholder="邮箱验证码"
+            style="width: 60%"
+          >
+            <template #prefix>
+              <el-icon>
+                <ChatDotRound />
+              </el-icon>
+            </template>
+          </el-input>
+          <el-button type="primary" style="width: 100px; margin-left: 30px"> 发送验证码 </el-button>
+        </el-form-item>
+        <el-form-item prop="imageVerificationCode">
+          <el-input
+            v-model="registerForm.imageVerificationCode"
+            :maxlength="6"
+            placeholder="图片验证码"
+            style="width: 60%"
+          >
+            <template #prefix>
+              <el-icon>
+                <ChatDotRound />
+              </el-icon>
+            </template>
+          </el-input>
+          <img
+            src="@/assets/2_bg.jpg"
+            alt="加载失败, 请重试"
+            style="width: 120px; height: 50px; margin-left: 20px"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button
             @click="register(registerFormRef)"
@@ -281,9 +335,9 @@ const register = (formEI: FormInstance | undefined) => {
 
   #register {
     width: 400px;
-    height: 250px;
+    height: 425px;
     margin: auto;
-    margin-top: 300px;
+    margin-top: 250px;
     background-color: #fff;
     border-radius: 10px;
 
