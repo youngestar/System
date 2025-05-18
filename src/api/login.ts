@@ -25,3 +25,10 @@ export const register = async (
   )
   return res
 }
+
+// 图片验证码
+export const getImgCode = async () => {
+  const res = await apiRequest('/captcha/image', 'get', {}, false, false)
+  console.log(res)
+  return res
+}

@@ -3,6 +3,7 @@ import { reactive, ref, type Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormRules, FormInstance } from 'element-plus'
 import { User, Lock, Message, ChatDotRound } from '@element-plus/icons-vue'
+import { getImgCode } from '@/api/login'
 import { useUserStore } from '@/stores/login'
 import router from '@/router'
 
@@ -268,7 +269,9 @@ const register = (formEI: FormInstance | undefined) => {
               </el-icon>
             </template>
           </el-input>
-          <el-button type="primary" style="width: 100px; margin-left: 30px"> 发送验证码 </el-button>
+          <el-button type="primary" style="width: 100px; margin-left: 30px" @click="getImgCode">
+            发送验证码
+          </el-button>
         </el-form-item>
         <el-form-item prop="imageVerificationCode">
           <el-input
