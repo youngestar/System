@@ -10,7 +10,7 @@ type Method = 'get' | 'post' | 'put' | 'delete'
 
 // api 创建
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'http://127.0.0.1:8000/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -74,10 +74,11 @@ export const request = async (
   try {
     const res = await api(requestConfig)
     if (res.data.code === 200) {
-      return res.data.data
+      return res
     }
     throw new Error(res.data.message)
   } catch (error) {
+    console.error(error)
     throw new Error(String(error) || '未知错误')
   }
 }
