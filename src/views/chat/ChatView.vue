@@ -1,8 +1,9 @@
+<!-- eslint-disable prefer-const -->
 <script setup lang="ts">
-import { Top, Plus, Edit, Delete, More } from '@element-plus/icons-vue'
+import { Top, Plus, Edit, Delete, More, ArrowDownBold } from '@element-plus/icons-vue'
 import { useChatStore } from '@/stores/chat'
-import { ref, watch, onUnmounted, computed } from 'vue'
-import { ElMessage, type ElInput } from 'element-plus'
+import { ref, watch, onUnmounted, computed, nextTick } from 'vue'
+import { ElMessage, type ElInput, type ElScrollbar } from 'element-plus'
 import type { Ref } from 'vue'
 import OpenAI from 'openai'
 import { marked } from 'marked'
@@ -29,6 +30,12 @@ const interimName = ref<string>('')
 const titleNameChanging: Ref<number> = ref(-1)
 const titlePopover = ref(null)
 
+// 滚动元素 DOM 获取
+const scrollbarRef: Ref<InstanceType<typeof ElScrollbar> | null> = ref(null)
+
+// 滚动距离检查
+const scrollbarToBottom: Ref<number | null> = ref(-9999)
+
 // 总对话储存
 // 每个对话会有 title 和 history, 对话之间隔离, 通过操作可以添加新的对话
 const allChats: Ref<allChat[]> = ref(chatStore.allChats)
@@ -46,14 +53,7 @@ const chatHistory = computed(() => {
 // 总对话切换函数
 const selectChat = (index: number) => {
   isViewingChat.value = index
-  // 消息未发送完成, 阻止重新导航
   if (index >= 0) {
-    if (allChats.value[isViewingChat.value].isSending === true && index !== isViewingChat.value) {
-      ElMessage({
-        message: '当前有消息在响应哦, 请等一下吧',
-      })
-      return
-    }
     // 正常导航到标题
     if (index >= 0) {
       router.replace({
@@ -75,7 +75,7 @@ const selectChat = (index: number) => {
   }
 }
 
-// 添加新对话函数-
+// 添加新对话函数
 const addNewChat = () => {
   // 消息数量过多时阻止添加
   if (allChats.value.length >= 15) {
@@ -107,6 +107,30 @@ const titleNameChange = (index: number) => {
 const handleBlur = (index: number) => {
   titleNameChanging.value = -1
   editChatName(index)
+}
+
+// 处理滚动函数
+const handleScroll = () => {
+  let scrollSetTimer
+  if (scrollSetTimer) clearTimeout(scrollSetTimer)
+  scrollSetTimer = setTimeout(() => {
+    scrollbarToBottom.value =
+      scrollbarRef.value?.$el.querySelector('.el-scrollbar__wrap').scrollTop -
+      scrollbarRef.value?.$el.querySelector('.el-scrollbar__wrap').scrollHeight +
+      scrollbarRef.value?.$el.querySelector('.el-scrollbar__wrap').clientHeight
+  }, 500)
+}
+
+// 回复滚动函数
+const scrollToBottom = () => {
+  const scrollContainer = scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap')
+  if (scrollContainer) {
+    // 使用原生 DOM API 实现滚动
+    scrollContainer.scrollTo({
+      top: scrollContainer.scrollHeight,
+      behavior: 'smooth',
+    })
+  }
 }
 
 // 对话改名函数
@@ -158,32 +182,36 @@ async function chatWithModel(chatMessage: string): Promise<void> {
   abortController.value?.abort()
   const controller = new AbortController()
   abortController.value = controller
+  // 更替可变变量为不可变变量
+  const sendChatHistory = chatHistory.value
+  const sendViewing = isViewingChat.value
   // 添加到历史对话
-  if (chatHistory.value.length === 0) {
-    chatHistory.value.push({
+  if (sendChatHistory.length === 0) {
+    sendChatHistory.push({
       role: 'system',
       content: system_prompt,
     })
-    chatHistory.value.push({
+    sendChatHistory.push({
       role: 'system',
       content: title_prompt,
     })
-    chatHistory.value.push({
+    sendChatHistory.push({
       role: 'user',
       content: chatMessage,
     })
   } else {
-    chatHistory.value.push({
+    sendChatHistory.push({
       role: 'user',
       content: <string>chatMessage,
     })
   }
+  await nextTick(() => scrollToBottom())
   let role = null
   try {
     const stream = await openai.chat.completions.create(
       {
         model: 'deepseek-chat',
-        messages: chatHistory.value,
+        messages: sendChatHistory,
         store: true,
         stream: true,
       },
@@ -192,18 +220,19 @@ async function chatWithModel(chatMessage: string): Promise<void> {
         signal: controller.signal,
       },
     )
+    let count = 0
     // 提取流式响应数据
     for await (const chunk of stream) {
       const response = chunk.choices[0]
       // 尝试获取 role
       if (!role && response?.delta?.role) {
         role = response?.delta?.role
-        chatHistory.value.push({
+        sendChatHistory.push({
           role: role,
           content: '',
           tool_call_id: response?.delta?.tool_calls?.[0]?.id ?? '', // 新增 tool_call_id，默认为空字符串
         })
-        allChats.value[isViewingChat.value].isSending = false
+        allChats.value[sendViewing].isSending = false
         // console.log('获取到role');
       } else {
         // console.log('获取role失败');
@@ -211,26 +240,34 @@ async function chatWithModel(chatMessage: string): Promise<void> {
       const delta = response?.delta?.content
       // 使用了类型断言,可能导致错误请注意
       if (delta) {
-        chatHistory.value.at(-1)!.content! += delta
+        sendChatHistory.at(-1)!.content! += delta
+      }
+      if (scrollbarToBottom.value! >= -200) {
+        count++
+        if (count % 15 === 0) {
+          scrollToBottom()
+        }
       }
     }
-    if (chatHistory.value.at(-1)!.content!.toString().includes('为您提炼标题:')) {
-      allChats.value[isViewingChat.value].title =
-        chatHistory.value.at(-1)!.content?.toString().split('为您提炼标题:')[1] + ''
+    if (sendChatHistory.at(-1)!.content!.toString().includes('为您提炼标题:')) {
+      allChats.value[sendViewing].title =
+        sendChatHistory.at(-1)!.content?.toString().split('为您提炼标题:')[1] + ''
     }
-    // console.log(chatHistory.value);
+    if (scrollbarToBottom.value! >= -200) {
+      scrollToBottom()
+    }
+    // console.log(sendChatHistory);
   } catch (error) {
     if (error instanceof Error) {
       if (error.message?.includes('abort')) {
         // 使用了类型断言,可能导致错误请注意
-        chatHistory.value.at(-2)!.content += '(该对话被中断)'
+        sendChatHistory.at(-2)!.content += '(该对话被中断)'
         return
       }
     }
     console.error('请求出错:', error)
   }
-
-  // console.log(chatHistory.value)
+  // console.log(sendChatHistory.value)
 }
 
 // 换行检测函数
@@ -261,10 +298,24 @@ function renderMarkdown(markdown: string) {
 }
 
 // chatWithModel("你好!现在开始,每次请求后你将回复我一个报数,从 1 开始,每次 +1");
-
 onUnmounted(() => {
   abortController.value?.abort()
 })
+
+watch(
+  () => [
+    scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollTop,
+    scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').clientHeight,
+    scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollHeight,
+  ],
+  () => {
+    scrollbarToBottom.value =
+      scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollTop +
+      scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').scrollHeight -
+      scrollbarRef.value?.$el?.querySelector('.el-scrollbar__wrap').clientHeight
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -279,7 +330,7 @@ onUnmounted(() => {
         v-model="isViewingChat"
         default-active="0"
         @select="selectChat"
-        style="height: calc(100vh - 32px)"
+        style="height: calc(100vh - 16px)"
       >
         <el-menu-item index="-1">
           <div type="primary" id="addChatButton">
@@ -369,16 +420,12 @@ onUnmounted(() => {
         <div id="topTitle">
           {{ allChats[isViewingChat].title }}
         </div>
-        <el-scrollbar height="80vh" always>
+        <el-scrollbar ref="scrollbarRef" height="80vh" always @scroll="handleScroll">
           <!-- 对话内容展示 -->
-          <div id="chatContent" style="white-space: pre-wrap">
+          <div id="chatContent" style="white-space: pre-wrap" ref="lastChatDOMRef">
             <div v-for="(item, index) in chatHistory" :key="index">
               <div v-if="item.role === 'user'" class="user">
-                {{
-                  typeof item.content === 'string'
-                    ? item.content.split('¡回复格式规范')[0]
-                    : item.content
-                }}
+                {{ item.content }}
                 <!-- {{ item.content }} -->
               </div>
               <div
@@ -424,6 +471,15 @@ onUnmounted(() => {
             <el-icon :size="22" :color="inputButtonColor">
               <Top></Top>
             </el-icon>
+          </el-button>
+          <el-button
+            v-show="scrollbarToBottom! <= -200"
+            circle
+            size="large"
+            style="position: absolute; right: 20px; top: -50px"
+            @click="scrollToBottom"
+          >
+            <el-icon><ArrowDownBold /></el-icon>
           </el-button>
         </el-form-item>
       </div>
