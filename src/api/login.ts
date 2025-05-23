@@ -27,8 +27,22 @@ export const register = async (
 }
 
 // 图片验证码
-export const getImgCode = async () => {
+export const getImgCodeApi = async () => {
   const res = await apiRequest('/captcha/image', 'get', {}, false, false)
+  return res
+}
+
+// 邮箱验证码
+export const getEmailCodeApi = async (email: string) => {
+  const res = await apiRequest(
+    '/captcha/email',
+    'get',
+    {
+      email,
+    },
+    false,
+    false,
+  )
   console.log(res)
   return res
 }

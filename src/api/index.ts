@@ -10,7 +10,7 @@ type Method = 'get' | 'post' | 'put' | 'delete'
 
 // api 创建
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1',
+  baseURL: '/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ const api = axios.create({
 })
 
 // 请求拦截器(注意为全局拦截器)
-axios.interceptors.request.use(
+api.interceptors.request.use(
   (response: InternalAxiosRequestConfig) => {
     return response // 成功直接返回响应
   },
@@ -73,8 +73,8 @@ export const request = async (
   // 请求并返回数据
   try {
     const res = await api(requestConfig)
-    if (res.data.code === 200) {
-      return res
+    if (res.status === 200) {
+      return res.data.data
     }
     throw new Error(res.data.message)
   } catch (error) {

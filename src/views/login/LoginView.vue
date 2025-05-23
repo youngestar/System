@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { reactive, ref, type Ref } from 'vue'
+import { onMounted, reactive, ref, type Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormRules, FormInstance } from 'element-plus'
 import { User, Lock, Message, ChatDotRound } from '@element-plus/icons-vue'
-import { getImgCode } from '@/api/login'
+import { getImgCodeApi, getEmailCodeApi } from '@/api/login'
 import { useUserStore } from '@/stores/login'
 import router from '@/router'
 
@@ -13,6 +13,42 @@ const rememberMe: Ref<boolean> = ref(false)
 const nowView: Ref<'login' | 'register'> = ref('login')
 // 使用 store
 const userStore = useUserStore()
+
+// 图片验证码存储
+const imgCode = reactive({
+  id: '',
+  src: '',
+})
+
+// 获取图片验证码
+// 需要防抖
+const getImageCode = () => {
+  getImgCodeApi()
+    .then((res) => {
+      imgCode.id = res.captcha_id
+      imgCode.src = res.captcha_img_base64
+    })
+    .catch(() => {
+      ElMessage({
+        message: '获取验证码失败',
+      })
+    })
+}
+
+// 获取邮箱验证码
+const getEmailCode = () => {
+  getEmailCodeApi(registerForm.email)
+    .then(() => {
+      ElMessage({
+        message: '验证码已发送至邮箱',
+      })
+    })
+    .catch(() => {
+      ElMessage({
+        message: '获取验证码失败',
+      })
+    })
+}
 
 // 登录表单验证
 const loginFormRef = ref<FormInstance>()
@@ -142,6 +178,11 @@ const register = (formEI: FormInstance | undefined) => {
     }
   })
 }
+
+onMounted(() => {
+  // 获取图片验证码
+  getImageCode()
+})
 </script>
 
 <template>
@@ -244,7 +285,7 @@ const register = (formEI: FormInstance | undefined) => {
         </el-form-item>
         <el-form-item prop="email">
           <el-input
-            v-model="registerForm.checkPassword"
+            v-model="registerForm.email"
             type="text"
             :maxlength="20"
             placeholder="请输入邮箱"
@@ -269,7 +310,7 @@ const register = (formEI: FormInstance | undefined) => {
               </el-icon>
             </template>
           </el-input>
-          <el-button type="primary" style="width: 100px; margin-left: 30px" @click="getImgCode">
+          <el-button type="primary" style="width: 100px; margin-left: 30px" @click="getEmailCode">
             发送验证码
           </el-button>
         </el-form-item>
@@ -286,11 +327,15 @@ const register = (formEI: FormInstance | undefined) => {
               </el-icon>
             </template>
           </el-input>
-          <img
-            src="@/assets/2_bg.jpg"
-            alt="加载失败, 请重试"
-            style="width: 120px; height: 50px; margin-left: 20px"
-          />
+          <div id="imgCodeDiv">
+            <img
+              :src="`data:image/png;base64,${imgCode.src}`"
+              alt="加载失败, 请重试"
+              id="imgCode"
+              @click="getImageCode"
+            />
+            <p>看不清? 失效了? 点击换一张!</p>
+          </div>
         </el-form-item>
         <el-form-item>
           <el-button
@@ -348,6 +393,22 @@ const register = (formEI: FormInstance | undefined) => {
       margin: 25px;
       position: relative;
       top: 25px;
+    }
+  }
+}
+#imgCodeDiv {
+  #imgCode {
+    position: relative;
+    cursor: pointer;
+    width: 120px;
+    height: 50px;
+    margin-left: 20px;
+    + p {
+      position: absolute;
+      bottom: -15px;
+      right: -5px;
+      line-height: 1;
+      font-size: 10px;
     }
   }
 }
