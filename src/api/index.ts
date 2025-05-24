@@ -3,8 +3,6 @@ import { useUserStore } from '@/stores/login'
 import type { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
 
-const userStore = useUserStore()
-
 // 接口类型
 type Method = 'get' | 'post' | 'put' | 'delete'
 
@@ -54,6 +52,8 @@ export const request = async (
 
   // 判断是否需要 token
   if (withToken) {
+    // 转移调研位置确保 Store 已经挂载
+    const userStore = useUserStore()
     const token = userStore.token
     if (!token) {
       throw new Error('Token 为空，请先登录')
@@ -64,7 +64,7 @@ export const request = async (
   }
 
   // 判断是 query 参数还是 body 参数
-  if ((method === 'get' || method === 'delete') && !hasBody) {
+  if (method === 'get' || method === 'delete') {
     requestConfig.params = requestBody
   } else {
     requestConfig.data = requestBody
@@ -76,10 +76,11 @@ export const request = async (
     if (res.status === 200) {
       return res.data.data
     }
-    throw new Error(res.data.message)
   } catch (error) {
-    console.error(error)
-    throw new Error(String(error) || '未知错误')
+    // 给出原生错误及扔出包装后错误
+    console.error('Axios 错误:', error?.response?.status, error?.response?.data)
+    if (error?.response?.data?.detail) throw new Error(String(error?.response?.data?.detail))
+    else throw new Error('未知错误, 请联系管理员')
   }
 }
 

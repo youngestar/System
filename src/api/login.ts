@@ -1,13 +1,13 @@
 import { apiRequest } from '.'
 
 // 注册部分
-export const register = async (
+export const registerApi = async (
   username: string,
   password: string,
   email: string,
-  emailCode: string,
-  imgId: string,
-  imgCode: string,
+  email_captcha_code: string,
+  img_captcha_id: string,
+  img_captcha_code: string,
 ) => {
   const res = await apiRequest(
     '/register',
@@ -16,9 +16,9 @@ export const register = async (
       username,
       password,
       email,
-      emailCode,
-      imgId,
-      imgCode,
+      email_captcha_code,
+      img_captcha_id,
+      img_captcha_code,
     },
     false,
     true,

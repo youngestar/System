@@ -164,12 +164,19 @@ const register = (formEI: FormInstance | undefined) => {
   if (!formEI) return
   formEI.validate((valid) => {
     if (valid) {
-      userStore.addUser(registerForm.name, registerForm.password)
-      ElMessage({
-        type: 'success',
-        message: '注册成功',
-      })
-      nowView.value = 'login'
+      userStore.addUser(
+        registerForm.name,
+        registerForm.password,
+        registerForm.email,
+        registerForm.emailVerificationCode,
+        imgCode.id,
+        registerForm.imageVerificationCode,
+      )
+      // ElMessage({
+      //   type: 'success',
+      //   message: '注册成功',
+      // })
+      // nowView.value = 'login'
     } else {
       ElMessage({
         type: 'error',

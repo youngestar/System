@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Ref } from 'vue'
+import { registerApi } from '@/api/login'
 
 interface User {
   userName: string
@@ -25,11 +26,28 @@ export const useUserStore = defineStore(
     ])
 
     // 添加新用户到 userList 中
-    const addUser = (userName: string, password: string) => {
-      userList.value.push({
-        userName,
-        password,
-      })
+    const addUser = async (
+      userName: string,
+      password: string,
+      email: string,
+      email_captcha_code: string,
+      img_captcha_id: string,
+      img_captcha_code: string,
+    ) => {
+      try {
+        const res = await registerApi(
+          userName,
+          password,
+          email,
+          email_captcha_code,
+          img_captcha_id,
+          img_captcha_code,
+        )
+        console.log(111)
+        return res
+      } catch (error) {
+        console.error('注册失败:', error)
+      }
     }
 
     // 模拟获取 token
