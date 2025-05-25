@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Ref } from 'vue'
-import { registerApi } from '@/api/login'
+import { registerApi, loginApi } from '@/api/login'
 
 interface User {
   userName: string
@@ -43,10 +43,19 @@ export const useUserStore = defineStore(
           img_captcha_id,
           img_captcha_code,
         )
-        console.log(111)
         return res
       } catch (error) {
         console.error('注册失败:', error)
+      }
+    }
+
+    // 登录
+    const login = async (grant_type: string, username: string, password: string) => {
+      try {
+        const res = await loginApi(grant_type, username, password)
+        return res
+      } catch (error) {
+        console.error('登录失败:', error)
       }
     }
 
@@ -55,14 +64,15 @@ export const useUserStore = defineStore(
       token.value = 'token'
     }
 
-    return { userList, addUser, token, rememberMe, getToken }
+    return { userList, addUser, login, token, rememberMe, getToken }
   },
   {
     persist: [
-      {
-        pick: ['userList', 'rememberMe'],
-        storage: localStorage,
-      },
+      //  本地库储存设置
+      // {
+      //   pick: ['userList', 'rememberMe'],
+      //   storage: localStorage,
+      // },
       {
         pick: ['token'],
         storage: sessionStorage,

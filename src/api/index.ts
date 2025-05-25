@@ -10,9 +10,6 @@ type Method = 'get' | 'post' | 'put' | 'delete'
 const api = axios.create({
   baseURL: '/api/v1',
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 // 请求拦截器(注意为全局拦截器)

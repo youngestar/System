@@ -39,12 +39,12 @@ const getImageCode = () => {
 const getEmailCode = () => {
   getEmailCodeApi(registerForm.email)
     .then(() => {
-      ElMessage({
+      ElMessage.success({
         message: '验证码已发送至邮箱',
       })
     })
     .catch(() => {
-      ElMessage({
+      ElMessage.error({
         message: '获取验证码失败',
       })
     })
@@ -58,11 +58,12 @@ const validateName = (rule: any, value: string, callback: (error?: string | Erro
   if (value === '') {
     callback('请填写用户名')
   } else if (nowView.value === 'login') {
-    if (userStore.userList.find((user) => user.userName === loginForm.name)) {
-      callback()
-    } else {
-      callback('没有找到此用户')
-    }
+    // if (userStore.userList.find((user) => user.userName === loginForm.name)) {
+    //   callback()
+    // } else {
+    //   callback('没有找到此用户')
+    // }
+    callback()
   } else if (nowView.value === 'register') {
     callback()
   } else {
@@ -80,12 +81,13 @@ const validatePassword = (rule: any, value: string, callback: (error?: string | 
   } else if (!redex.test(value)) {
     callback('密码应同时包含: 数字, 大写字母, 小写字母, 标点符号')
   } else if (nowView.value === 'login') {
-    const user = userStore.userList.find((user) => user.userName === loginForm.name)
-    if (user?.password === loginForm.password) {
-      callback()
-    } else {
-      callback('密码错误')
-    }
+    // const user = userStore.userList.find((user) => user.userName === loginForm.name)
+    // if (user?.password === loginForm.password) {
+    //   callback()
+    // } else {
+    //   callback('密码错误')
+    // }
+    callback()
   } else if (nowView.value === 'register') {
     callback()
   } else {
@@ -106,14 +108,15 @@ const loginRules = reactive<FormRules<typeof loginForm>>({
 // 登录函数
 const login = (formEI: FormInstance | undefined) => {
   if (!formEI) return
-  formEI.validate((valid) => {
+  formEI.validate(async (valid) => {
     if (valid) {
-      userStore.getToken()
-      ElMessage({
-        message: '登录成功',
-        type: 'success',
-      })
-      router.push({ name: 'home' })
+      // userStore.getToken()
+      // ElMessage({
+      //   message: '登录成功',
+      //   type: 'success',
+      // })
+      const res = await userStore.login('password', loginForm.name, loginForm.password)
+      // router.push({ name: 'home' })
     } else {
       ElMessage({
         message: '登录失败',
