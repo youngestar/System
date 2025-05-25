@@ -59,12 +59,17 @@ export const useUserStore = defineStore(
       }
     }
 
-    // 模拟获取 token
-    const getToken = () => {
-      token.value = 'token'
+    // 设置及获取 token
+    const setToken = (newToken: string) => {
+      token.value = newToken
     }
 
-    return { userList, addUser, login, token, rememberMe, getToken }
+    const getToken = () => {
+      return token.value
+    }
+
+    //
+    return { userList, addUser, login, token, rememberMe, setToken, getToken }
   },
   {
     persist: [

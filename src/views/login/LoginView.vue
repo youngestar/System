@@ -36,18 +36,17 @@ const getImageCode = () => {
 }
 
 // 获取邮箱验证码
-const getEmailCode = () => {
-  getEmailCodeApi(registerForm.email)
-    .then(() => {
-      ElMessage.success({
-        message: '验证码已发送至邮箱',
-      })
+const getEmailCode = async () => {
+  const res = await getEmailCodeApi(registerForm.email)
+  if (res) {
+    ElMessage.success({
+      message: '验证码已发送至邮箱',
     })
-    .catch(() => {
-      ElMessage.error({
-        message: '获取验证码失败',
-      })
+  } else {
+    ElMessage.error({
+      message: '获取验证码失败',
     })
+  }
 }
 
 // 登录表单验证
@@ -78,15 +77,9 @@ const validatePassword = (rule: any, value: string, callback: (error?: string | 
     callback('请填写密码')
   } else if (value.length < 6) {
     callback('密码不能小于 6 位')
-  } else if (!redex.test(value)) {
+  } else if (nowView.value === 'register' && !redex.test(value)) {
     callback('密码应同时包含: 数字, 大写字母, 小写字母, 标点符号')
   } else if (nowView.value === 'login') {
-    // const user = userStore.userList.find((user) => user.userName === loginForm.name)
-    // if (user?.password === loginForm.password) {
-    //   callback()
-    // } else {
-    //   callback('密码错误')
-    // }
     callback()
   } else if (nowView.value === 'register') {
     callback()
@@ -111,12 +104,15 @@ const login = (formEI: FormInstance | undefined) => {
   formEI.validate(async (valid) => {
     if (valid) {
       // userStore.getToken()
-      // ElMessage({
-      //   message: '登录成功',
-      //   type: 'success',
-      // })
       const res = await userStore.login('password', loginForm.name, loginForm.password)
-      // router.push({ name: 'home' })
+      if (res) {
+        userStore.setToken(res.access_token)
+        ElMessage({
+          message: '登录成功',
+          type: 'success',
+        })
+        router.push({ name: 'home' })
+      }
     } else {
       ElMessage({
         message: '登录失败',
@@ -165,9 +161,9 @@ const registerRules = reactive<FormRules<typeof registerForm>>({
 // 注册函数
 const register = (formEI: FormInstance | undefined) => {
   if (!formEI) return
-  formEI.validate((valid) => {
+  formEI.validate(async (valid) => {
     if (valid) {
-      userStore.addUser(
+      const res = await userStore.addUser(
         registerForm.name,
         registerForm.password,
         registerForm.email,
@@ -175,11 +171,15 @@ const register = (formEI: FormInstance | undefined) => {
         imgCode.id,
         registerForm.imageVerificationCode,
       )
-      // ElMessage({
-      //   type: 'success',
-      //   message: '注册成功',
-      // })
-      // nowView.value = 'login'
+      if (!res) {
+        getImageCode()
+      } else if (res.code >= 200 && res.code < 300) {
+        ElMessage({
+          type: 'success',
+          message: '注册成功',
+        })
+        nowView.value = 'login'
+      }
     } else {
       ElMessage({
         type: 'error',
