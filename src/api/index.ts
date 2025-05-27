@@ -40,7 +40,6 @@ export const request = async (
   method: Method,
   requestBody: unknown = {},
   withToken: boolean = false,
-  hasBody: boolean = false,
 ): Promise<unknown> => {
   const requestConfig: AxiosRequestConfig = {
     url,
@@ -87,10 +86,9 @@ export const apiRequest = async (
   method: Method,
   requestInfo: any = {},
   withToken: boolean = false,
-  hasBody: boolean = false,
 ): Promise<any> => {
   try {
-    return await request(path, method, requestInfo, withToken, hasBody)
+    return await request(path, method, requestInfo, withToken)
   } catch (e) {
     ElMessage.error(e.message || String(e))
     throw e

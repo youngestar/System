@@ -10,7 +10,7 @@ export const loginApi = async (grant_type: string, username: string, password: s
     formData.append('password', password)
 
     // 使用 apiRequest 发送请求，注意第三个参数传递原始对象而非 FormData
-    const res = await apiRequest('/login', 'post', formData, false, true)
+    const res = await apiRequest('/login', 'post', formData, false)
 
     return res
   } catch (err) {
@@ -41,7 +41,6 @@ export const registerApi = async (
         img_captcha_code,
       },
       false,
-      true,
     )
     return res
   } catch (err) {
@@ -52,7 +51,7 @@ export const registerApi = async (
 // 图片验证码
 export const getImgCodeApi = async () => {
   try {
-    const res = await apiRequest('/captcha/image', 'get', {}, false, false)
+    const res = await apiRequest('/captcha/image', 'get', {}, false)
     return res
   } catch (err) {
     console.error(err)
@@ -68,7 +67,6 @@ export const getEmailCodeApi = async (email: string) => {
       {
         email,
       },
-      false,
       false,
     )
     return res
