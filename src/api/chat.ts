@@ -1,7 +1,7 @@
 import { apiRequest } from '.'
 
 // 获取对话列表及对话详情
-const getChatListApi = async () => {
+export const getChatListApi = async () => {
   try {
     const res = await apiRequest('/chats', 'get', {}, true)
     return res
@@ -10,7 +10,7 @@ const getChatListApi = async () => {
   }
 }
 
-const getchatMessagesApi = async (chat_id: string) => {
+export const getchatMessagesApi = async (chat_id: string) => {
   try {
     const res = await apiRequest(`/chat/messages`, 'get', { chat_id }, true)
     return res
@@ -20,7 +20,7 @@ const getchatMessagesApi = async (chat_id: string) => {
 }
 
 // 创建对话及发送消息
-const createChatApi = async () => {
+export const createChatApi = async () => {
   try {
     const res = await apiRequest('/chat', 'post', {}, true)
     return res
@@ -29,7 +29,7 @@ const createChatApi = async () => {
   }
 }
 
-const sendMessageApi = async (chat_id: string, role: string, content: string) => {
+export const sendMessageApi = async (chat_id: string, role: string, content: string) => {
   try {
     const res = await apiRequest('/chat/messages', 'post', { chat_id, role, content }, true)
     return res

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { Top, Plus, Edit, Delete, More, ArrowDownBold } from '@element-plus/icons-vue'
 import { useChatStore } from '@/stores/chat'
-import { ref, watch, onUnmounted, computed, nextTick } from 'vue'
+import { ref, watch, onUnmounted, computed, nextTick, onMounted } from 'vue'
 import { ElMessage, type ElInput, type ElScrollbar } from 'element-plus'
 import type { Ref } from 'vue'
 import OpenAI from 'openai'
@@ -15,6 +15,16 @@ interface allChat {
   title: string
   history: OpenAI.ChatCompletionMessageParam[]
 }
+
+// interface allChat {
+//   isSend: boolean
+//   created_at: string
+//   id: string
+//   owner_id: string
+//   title: string
+//   updated_at: string
+// }
+
 type StreamController = AbortController | null
 
 const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY
@@ -66,18 +76,19 @@ const selectChat = (index: number) => {
     }
   } else {
     // 菜单导航到新对话
-    router.replace({
-      name: 'chat',
-      params: {
-        chatName: '新对话',
-      },
-    })
+    // router.replace({
+    //   name: 'chat',
+    //   params: {
+    //     chatName: '新对话',
+    //   },
+    // })
+    useChatStore().createChat()
   }
 }
 
 // 添加新对话函数
 const addNewChat = () => {
-  // 消息数量过多时阻止添加
+  // 对话1数量过多时阻止添加
   if (allChats.value.length >= 15) {
     ElMessage({
       message: '对话数量太多啦, 请删除一些吧',
@@ -298,6 +309,12 @@ function renderMarkdown(markdown: string) {
 }
 
 // chatWithModel("你好!现在开始,每次请求后你将回复我一个报数,从 1 开始,每次 +1");
+
+onMounted(async () => {
+  const res = await chatStore.getChatList()
+  console.log(res)
+})
+
 onUnmounted(() => {
   abortController.value?.abort()
 })
