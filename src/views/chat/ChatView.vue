@@ -1,33 +1,15 @@
 <!-- eslint-disable prefer-const -->
 <script setup lang="ts">
 import { Top, Plus, Edit, Delete, More, ArrowDownBold } from '@element-plus/icons-vue'
-import { useChatStore } from '@/stores/chat'
-import { ref, watch, onUnmounted, computed, nextTick, onMounted } from 'vue'
+import { useChatStore, type allChat } from '@/stores/chat'
+import { ref, watch, onUnmounted, nextTick, onMounted } from 'vue'
 import { ElMessage, type ElInput, type ElScrollbar } from 'element-plus'
 import type { Ref } from 'vue'
 import OpenAI from 'openai'
 import { marked } from 'marked'
 import router from '@/router'
-import { system_prompt, title_prompt } from '../temp'
-// 对话分区接口
-interface allChat {
-  isSending: boolean
-  title: string
-  history: OpenAI.ChatCompletionMessageParam[]
-}
+import { sendMessageSSE, type SendMessageSSEParams } from '@/api/chat'
 
-// interface allChat {
-//   isSend: boolean
-//   created_at: string
-//   id: string
-//   owner_id: string
-//   title: string
-//   updated_at: string
-// }
-
-type StreamController = AbortController | null
-
-const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY
 const chatStore = useChatStore()
 
 // 当前对话序号, 用以储存当前正在浏览的对话
@@ -50,18 +32,17 @@ const scrollbarToBottom: Ref<number | null> = ref(-9999)
 // 每个对话会有 title 和 history, 对话之间隔离, 通过操作可以添加新的对话
 const allChats: Ref<allChat[]> = ref(chatStore.allChats)
 
-// 历史对话储存, 涉及: 总对话对象数组ref, 当前浏览页面数字ref; 储存位置: 对象数组 中对象的 history 属性中
-// 注意: 使用 computed 以做到及时更新
-const chatHistory = computed(() => {
-  if (isViewingChat.value >= 0) {
-    return allChats.value[isViewingChat.value].history
-  } else {
-    return [] as OpenAI.ChatCompletionMessageParam[]
-  }
-})
+// 历史对话储存
+const chatHistory: Ref<OpenAI.ChatCompletionMessageParam[]> = ref([])
+
+// 对话数组获取
+const getChatMessages = async (chat_id: string) => {
+  const res = await chatStore.getChatMessages(chat_id)
+  return res
+}
 
 // 总对话切换函数
-const selectChat = (index: number) => {
+const selectChat = async (index: number) => {
   isViewingChat.value = index
   if (index >= 0) {
     // 正常导航到标题
@@ -72,30 +53,34 @@ const selectChat = (index: number) => {
           chatName: allChats.value[index].title,
         },
       })
-      // 添加新对话
+      const res = await getChatMessages(allChats.value[index].id)
+      chatHistory.value = res
     }
   } else {
     // 菜单导航到新对话
-    // router.replace({
-    //   name: 'chat',
-    //   params: {
-    //     chatName: '新对话',
-    //   },
-    // })
-    useChatStore().createChat()
+    router.replace({
+      name: 'chat',
+      params: {
+        chatName: '新对话',
+      },
+    })
   }
 }
 
 // 添加新对话函数
-const addNewChat = () => {
-  // 对话1数量过多时阻止添加
+const addNewChat = async () => {
+  // 对话数量过多时阻止添加
   if (allChats.value.length >= 15) {
     ElMessage({
       message: '对话数量太多啦, 请删除一些吧',
     })
     return
   }
-  chatStore.addNewChat()
+  const res = await chatStore.createChat()
+  allChats.value.push({
+    isSending: false,
+    ...res,
+  })
   isViewingChat.value = 0
   sendChat(nowChat.value)
 }
@@ -166,6 +151,11 @@ const deleteChat = (index: number) => {
   chatStore.deleteChat(index)
 }
 
+// 转化获取内容为 md 格式
+function renderMarkdown(markdown: string) {
+  return marked(markdown)
+}
+
 // 输入框绑定
 const nowChat = ref<string>('')
 // 输入框按钮颜色检测
@@ -175,110 +165,77 @@ watch(nowChat, (newValue) => {
   inputButtonBgColor.value = newValue === '' ? 'rgb(199.5, 201, 204)' : ''
   inputButtonColor.value = newValue === '' ? '#444444' : '#fff'
 })
-// 使用 AbortController 便于流式响应检测及中断
-const abortController = ref<StreamController>(null)
-// 检测消息是否发送完成
-// const isSending = ref<boolean>(false);
-
-// ai 模型创建及调用部分
-const openai = new OpenAI({
-  baseURL: 'https://api.deepseek.com',
-  apiKey: apiKey,
-  dangerouslyAllowBrowser: true,
-})
 
 // 发送请求函数
 async function chatWithModel(chatMessage: string): Promise<void> {
-  // 中断未结束流式响应
-  abortController.value?.abort()
-  const controller = new AbortController()
-  abortController.value = controller
-  // 更替可变变量为不可变变量
-  const sendChatHistory = chatHistory.value
-  const sendViewing = isViewingChat.value
-  // 添加到历史对话
-  if (sendChatHistory.length === 0) {
-    sendChatHistory.push({
-      role: 'system',
-      content: system_prompt,
-    })
-    sendChatHistory.push({
-      role: 'system',
-      content: title_prompt,
-    })
-    sendChatHistory.push({
+  // 自动滚动距离限制
+  const autoScrollHeight = -250
+  // 获取变量并固定
+  const index = isViewingChat.value
+  try {
+    // 请求体
+    const data = {
+      chat_id: allChats.value[isViewingChat.value].id,
       role: 'user',
       content: chatMessage,
-    })
-  } else {
-    sendChatHistory.push({
-      role: 'user',
-      content: <string>chatMessage,
-    })
-  }
-  await nextTick(() => scrollToBottom())
-  let role = null
-  try {
-    const stream = await openai.chat.completions.create(
-      {
-        model: 'deepseek-chat',
-        messages: sendChatHistory,
-        store: true,
-        stream: true,
-      },
-      {
-        // 绑定中止信号
-        signal: controller.signal,
-      },
-    )
+    }
+
+    // 添加用户询问到对话历史
+    chatHistory.value.push({
+      role: data.role,
+      content: data.content,
+    } as OpenAI.ChatCompletionMessageParam)
+
+    // 设置为对话中
+    allChats.value[index].isSending = true
+
+    // 滚动屏幕到底部
+    await nextTick(() => scrollToBottom())
+
+    // 回复块操作函数
     let count = 0
-    // 提取流式响应数据
-    for await (const chunk of stream) {
-      const response = chunk.choices[0]
-      // 尝试获取 role
-      if (!role && response?.delta?.role) {
-        role = response?.delta?.role
-        sendChatHistory.push({
-          role: role,
+    let firstChunk = true
+    const addSystemMessage = (content: string) => {
+      if (firstChunk) {
+        // 添加系统回复到对话历史
+        chatHistory.value.push({
+          role: 'assistant',
           content: '',
-          tool_call_id: response?.delta?.tool_calls?.[0]?.id ?? '', // 新增 tool_call_id，默认为空字符串
-        })
-        allChats.value[sendViewing].isSending = false
-        // console.log('获取到role');
-      } else {
-        // console.log('获取role失败');
+        } as OpenAI.ChatCompletionMessageParam)
+        allChats.value[index].isSending = false
+
+        firstChunk = false
       }
-      const delta = response?.delta?.content
-      // 使用了类型断言,可能导致错误请注意
-      if (delta) {
-        sendChatHistory.at(-1)!.content! += delta
-      }
-      if (scrollbarToBottom.value! >= -200) {
+      chatHistory.value.at(-1)!.content += content
+      // 发送时自动翻页函数
+      if (scrollbarToBottom.value! >= autoScrollHeight) {
         count++
         if (count % 15 === 0) {
           scrollToBottom()
         }
       }
     }
-    if (sendChatHistory.at(-1)!.content!.toString().includes('为您提炼标题:')) {
-      allChats.value[sendViewing].title =
-        sendChatHistory.at(-1)!.content?.toString().split('为您提炼标题:')[1] + ''
-    }
-    if (scrollbarToBottom.value! >= -200) {
+
+    await sendMessageSSE(
+      '/chat/messages',
+      data as SendMessageSSEParams,
+      addSystemMessage,
+      (err) => {
+        console.error(err)
+      },
+      () => {
+        console.log('一次请求被完成')
+      },
+    )
+
+    if (scrollbarToBottom.value! >= autoScrollHeight) {
       scrollToBottom()
     }
-    // console.log(sendChatHistory);
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message?.includes('abort')) {
-        // 使用了类型断言,可能导致错误请注意
-        sendChatHistory.at(-2)!.content += '(该对话被中断)'
-        return
-      }
-    }
     console.error('请求出错:', error)
+  } finally {
+    allChats.value[index].isSending = false
   }
-  // console.log(sendChatHistory.value)
 }
 
 // 换行检测函数
@@ -297,27 +254,16 @@ async function sendChat(chatMessage: string): Promise<void> {
   if (chatMessage.trim() === '') {
     return
   }
-  // 设置状态为发送中
-  allChats.value[isViewingChat.value].isSending = true
   chatWithModel(chatMessage.trim())
   nowChat.value = '' // 清空输入框
 }
 
-// 转化获取内容为 md 格式
-function renderMarkdown(markdown: string) {
-  return marked(markdown)
-}
-
-// chatWithModel("你好!现在开始,每次请求后你将回复我一个报数,从 1 开始,每次 +1");
-
 onMounted(async () => {
   const res = await chatStore.getChatList()
-  console.log(res)
+  allChats.value = res
 })
 
-onUnmounted(() => {
-  abortController.value?.abort()
-})
+onUnmounted(() => {})
 
 watch(
   () => [
@@ -345,7 +291,7 @@ watch(
         background-color="#f3f4f6"
         text-color="#444444"
         v-model="isViewingChat"
-        default-active="0"
+        default-active="-1"
         @select="selectChat"
         style="height: calc(100vh - 16px)"
       >
@@ -443,7 +389,6 @@ watch(
             <div v-for="(item, index) in chatHistory" :key="index">
               <div v-if="item.role === 'user'" class="user">
                 {{ item.content }}
-                <!-- {{ item.content }} -->
               </div>
               <div
                 v-else-if="item.role !== 'system'"

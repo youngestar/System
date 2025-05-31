@@ -2,14 +2,15 @@ import axios from 'axios'
 import { useUserStore } from '@/stores/login'
 import type { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
+import { EventSourcePolyfill } from 'event-source-polyfill'
 
 // 接口类型
 type Method = 'get' | 'post' | 'put' | 'delete'
 
 // api 创建
-const api = axios.create({
+export const api = axios.create({
   baseURL: '/api/v1',
-  timeout: 10000,
+  timeout: 60000,
 })
 
 // 请求拦截器(注意为全局拦截器)
@@ -94,5 +95,3 @@ export const apiRequest = async (
     throw e
   }
 }
-
-export default api
