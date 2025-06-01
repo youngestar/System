@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
-import { getChatListApi, createChatApi, getChatMessagesApi } from '@/api/chat'
+import { getChatListApi, createChatApi, getChatMessagesApi, updateChatNameApi } from '@/api/chat'
 
 // 对话分区接口
 export interface allChat {
@@ -26,20 +26,10 @@ export const useChatStore = defineStore(
       },
     ])
 
-    // 添加聊天函数
-    // const addNewChat = async () => {
-    //   allChats.value.unshift({
-    //     isSending: false,
-    //     // 此处 title 需更换, 注意
-    //     title: '新对话',
-    //     history: [],
-    //   })
+    // // 改名函数
+    // const editChatName = (name: string, index: number) => {
+    //   allChats.value[index].title = name
     // }
-
-    // 改名函数
-    const editChatName = (name: string, index: number) => {
-      allChats.value[index].title = name
-    }
 
     // 删除聊天函数
     const deleteChat = (index: number) => {
@@ -66,14 +56,20 @@ export const useChatStore = defineStore(
       return res
     }
 
+    // 聊天名称修改
+    const updateChatName = async (chat_id: string, new_title: string) => {
+      const res = await updateChatNameApi(chat_id, new_title)
+      return res
+    }
+
     return {
       allChats,
       // addNewChat,
-      editChatName,
       deleteChat,
       getChatList,
       getChatMessages,
       createChat,
+      updateChatName,
     }
   },
   {

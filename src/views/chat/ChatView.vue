@@ -77,16 +77,25 @@ const addNewChat = async () => {
     return
   }
   const res = await chatStore.createChat()
-  allChats.value.push({
-    isSending: false,
-    ...res,
-  })
-  isViewingChat.value = 0
-  sendChat(nowChat.value)
+  if (res) {
+    allChats.value.unshift({
+      isSending: false,
+      ...res,
+    })
+    isViewingChat.value = 0
+    sendChat(nowChat.value)
+  }
 }
 
 // 改名外置函数
 const titleNameChange = (index: number) => {
+  const unchangedTitle = allChats.value[index].title
+  setTimeout(() => {
+    if (interimName.value.trim() === unchangedTitle) {
+      titleNameChanging.value = -1
+      return
+    }
+  }, 5000)
   interimName.value = allChats.value[isViewingChat.value].title
   titleNameChanging.value = index
   // 废案:自动聚焦函数
@@ -130,9 +139,15 @@ const scrollToBottom = () => {
 }
 
 // 对话改名函数
-const editChatName = (index: number) => {
+const editChatName = async (index: number) => {
+  const unchangedTitle = allChats.value[index].title
   if (!interimName.value.trim()) return
-  chatStore.editChatName(interimName.value, index)
+  allChats.value[index].title = interimName.value
+  const res = await chatStore.updateChatName(allChats.value[index].id, interimName.value)
+  if (!res) {
+    allChats.value[index].title = unchangedTitle
+  }
+  // chatStore.editChatName(interimName.value, index)
 }
 
 // 对话删除函数
@@ -169,7 +184,7 @@ watch(nowChat, (newValue) => {
 // 发送请求函数
 async function chatWithModel(chatMessage: string): Promise<void> {
   // 自动滚动距离限制
-  const autoScrollHeight = -250
+  const autoScrollHeight = -300
   // 获取变量并固定
   const index = isViewingChat.value
   try {

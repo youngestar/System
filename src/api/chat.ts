@@ -26,6 +26,17 @@ export const getChatMessagesApi = async (chat_id: string) => {
   }
 }
 
+// 对话改名函数
+export const updateChatNameApi = async (chat_id: string, new_title: string) => {
+  try {
+    const res = await apiRequest('/chat/title', 'post', { chat_id, new_title }, true)
+    console.log('修改聊天名称成功:', res)
+    return res
+  } catch (err) {
+    console.error('修改聊天名称失败:', err)
+  }
+}
+
 // 创建对话及发送消息
 export const createChatApi = async () => {
   try {
